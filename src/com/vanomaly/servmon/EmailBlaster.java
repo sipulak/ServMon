@@ -70,7 +70,7 @@ class MyTask extends TimerTask {
 			message = emt.highLatency(websiteObj.website, response);
 			sendAlert = true;
 			status = 2;
-		} else if (response <= ServMon.avg) {
+		} else if (response <= ServMon.avg && status == 2) {
 			message = emt.recovery(websiteObj.website, response);
 			sendAlert = true;
 			status = 1;
