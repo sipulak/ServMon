@@ -26,6 +26,7 @@ import javax.mail.internet.AddressException;
 import com.vanomaly.jutils.SendEmail;
 
 public class EmailBlaster {
+	public static int status = 0;
 	public void  monitor(int delay, int acDelay) {
 		Timer timer = new Timer("Emailer");
 		MyTask t = new MyTask();
@@ -43,7 +44,6 @@ class RedoAutoConfig extends TimerTask {
 	}
 }
 class MyTask extends TimerTask {
-	private int status = 0;
 	private int times = 0;
 	EmailTemplate emt = new EmailTemplate();
 	SendEmail sm = new SendEmail();
@@ -52,28 +52,34 @@ class MyTask extends TimerTask {
 	String message = "";
 	boolean sendAlert = false;
 	public void run() {
+		//debug
+		System.out.println(EmailBlaster.status);
+		//debug
 		WebsiteObj websiteObj = c.getConfig();
 		System.out.println("\nTesting " + websiteObj.website + " Now...\n");
 		// prime to make sure jvm is running well before actual test
 		httpmon.pingUrl(websiteObj.website);
 		// run test
 		long response = httpmon.pingUrl(websiteObj.website);
+		System.out.println("Current Response Time: " + response + "(ms)");
+		System.out.println("AVG Response Time: " + ServMon.avg + "(ms)");
 		if (response == 333666333L) {
 			message = emt.badResponseCode(websiteObj.website, response);
 			sendAlert = true;
-			status = 2;
+			EmailBlaster.status = 2;
 		} else if (response == 9999L) {
 			message = emt.noResponse(websiteObj.website, response);
 			sendAlert = true;
-			status = 2;
+			EmailBlaster.status = 2;
 		} else if (response > (ServMon.avg * 1.40)) {
 			message = emt.highLatency(websiteObj.website, response);
 			sendAlert = true;
-			status = 2;
-		} else if (response <= ServMon.avg && status == 2) {
+			EmailBlaster.status = 2;
+		} else if (response <= ServMon.avg && EmailBlaster.status == 2) {
+			System.out.println("Recovery " + EmailBlaster.status);
 			message = emt.recovery(websiteObj.website, response);
 			sendAlert = true;
-			status = 1;
+			EmailBlaster.status = 1;
 		}
 		if (sendAlert) {
 			times++;
@@ -85,20 +91,23 @@ class MyTask extends TimerTask {
 						if (websiteObj.email[i] == null) {
 							continue;
 						}
-						if (status == 2) {
+						if (EmailBlaster.status == 2) {
 							sm.sendGmail(
 									emt.subjectLine(websiteObj.website), 
 									message,
 									websiteObj.email[i]);
-							status = 0;
-						} else if (status == 1) {
+						} else if (EmailBlaster.status == 1) {
 							sm.sendGmail(
 									emt.subjectLineRecovery(websiteObj.website), 
 									message,
 									websiteObj.email[i]);
-							status = 0;
 						}
 					}
+					if (EmailBlaster.status == 1) {
+						EmailBlaster.status = 0;
+					}
+					sendAlert = false;
+					times = 0;
 				} catch (AddressException e) {
 					e.printStackTrace();
 				} catch (MessagingException e) {
