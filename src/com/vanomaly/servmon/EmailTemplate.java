@@ -20,10 +20,10 @@ import java.util.Date;
 
 public class EmailTemplate {
 	public String subjectLine(String websiteName) {
-		return "ALERT! WEBSITE " + websiteName + " DOWN!";
+		return "ALERT! WEBSITE " + websiteName + " DOWN! | " + new Date();
 	}
 	public String subjectLineRecovery(String websiteName) {
-		return "RECOVERY! Website " + websiteName + " OK!";
+		return "RECOVERY! Website " + websiteName + " OK! | " + new Date();
 	}
 	public String recovery(String websiteName, long responseT) {
 		return	"\n\t +--------------------------------------+" +
