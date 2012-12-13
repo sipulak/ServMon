@@ -39,7 +39,7 @@ public class EmailBlaster {
 class RedoAutoConfig extends TimerTask {
 	AutoConfig ac = new AutoConfig();
 	public void run() {
-		System.out.println("RUNNING AC!");
+		System.out.println("RUNNING AutoConfig!");
 		ServMon.avg = ac.autoConfig(15);
 	}
 }
@@ -53,7 +53,7 @@ class MyTask extends TimerTask {
 	boolean sendAlert = false;
 	public void run() {
 		//debug
-		System.out.println(EmailBlaster.status);
+		System.out.println("Pre-Test Status: " + EmailBlaster.status);
 		//debug
 		WebsiteObj websiteObj = c.getConfig();
 		System.out.println("\nTesting " + websiteObj.website + " Now...\n");
@@ -63,6 +63,7 @@ class MyTask extends TimerTask {
 		long response = httpmon.pingUrl(websiteObj.website);
 		System.out.println("Current Response Time: " + response + "(ms)");
 		System.out.println("AVG Response Time: " + ServMon.avg + "(ms)");
+		System.out.println("");
 		if (response == 333666333L) {
 			message = emt.badResponseCode(websiteObj.website, response);
 			sendAlert = true;
@@ -81,6 +82,7 @@ class MyTask extends TimerTask {
 			sendAlert = true;
 			EmailBlaster.status = 1;
 		}
+		System.out.println("Post-Test Status: " + EmailBlaster.status);
 		if (sendAlert) {
 			times++;
 			if (times <= 1) {
