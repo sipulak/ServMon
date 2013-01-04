@@ -26,6 +26,6 @@ public class ServMon {
 		EmailBlaster emb = new EmailBlaster();
 		AutoConfig ac = new AutoConfig();
 		avg = ac.autoConfig(15);
-		emb.monitor(9, 1);
+		emb.monitor(900, 1800);
 	}
 }

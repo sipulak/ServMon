@@ -28,11 +28,12 @@ import com.vanomaly.jutils.SendEmail;
 public class EmailBlaster {
 	public static int status = 0;
 	public void  monitor(int delay, int acDelay) {
-		Timer timer = new Timer("Emailer");
-		MyTask t = new MyTask();
+		Timer acTimer = new Timer("AutoConfig");
+		Timer monTimer = new Timer("Monitor");
+		HeartBeat hrtbt = new HeartBeat();
 		RedoAutoConfig redoAC = new RedoAutoConfig();
-		timer.schedule(redoAC, 0, (acDelay * 1000));
-		timer.schedule(t, 0, (delay * 1000));
+		acTimer.schedule(redoAC, 0, (acDelay * 1000));
+		monTimer.schedule(hrtbt, 0, (delay * 1000));
 		
 	}
 }
@@ -43,7 +44,7 @@ class RedoAutoConfig extends TimerTask {
 		ServMon.avg = ac.autoConfig(15);
 	}
 }
-class MyTask extends TimerTask {
+class HeartBeat extends TimerTask {
 	private int times = 0;
 	EmailTemplate emt = new EmailTemplate();
 	SendEmail sm = new SendEmail();
@@ -56,6 +57,7 @@ class MyTask extends TimerTask {
 		System.out.println("\nPre-Test Status: " + EmailBlaster.status);
 		//debug
 		WebsiteObj websiteObj = c.getConfig();
+		System.out.println("\n" + new Date());
 		System.out.println("\nTesting " + websiteObj.website + " Now...\n");
 		// prime to make sure jvm is running well before actual test
 		httpmon.pingUrl(websiteObj.website);
