@@ -27,6 +27,7 @@ import com.vanomaly.jutils.SendEmail;
 
 public class EmailBlaster {
 	public static int status = 0;
+	boolean sendAlert = false;
 	public void  monitor(int delay, int acDelay) {
 		Timer acTimer = new Timer("AutoConfig");
 		Timer monTimer = new Timer("Monitor");
@@ -36,23 +37,17 @@ public class EmailBlaster {
 		monTimer.schedule(hrtbt, 0, (delay * 1000));
 		
 	}
-}
-class RedoAutoConfig extends TimerTask {
-	AutoConfig ac = new AutoConfig();
-	public void run() {
-		System.out.println("\nRUNNING AutoConfig!");
-		ServMon.avg = ac.autoConfig(15);
+	public boolean getAlert() {
+		return sendAlert;
 	}
-}
-class HeartBeat extends TimerTask {
-	private int times = 0;
-	EmailTemplate emt = new EmailTemplate();
-	SendEmail sm = new SendEmail();
-	Config c = new Config();
-	HTTPMon httpmon = new HTTPMon();
-	String message = "";
-	boolean sendAlert = false;
-	public void run() {
+	public void logic() {
+		int times = 0;
+		EmailTemplate emt = new EmailTemplate();
+		SendEmail sm = new SendEmail();
+		Config c = new Config();
+		HTTPMon httpmon = new HTTPMon();
+		String message = "";
+		
 		//debug
 		System.out.println("\nPre-Test Status: " + EmailBlaster.status);
 		//debug
@@ -122,6 +117,29 @@ class HeartBeat extends TimerTask {
 				//this.cancel();
 				sendAlert = false;
 				times = 0;
+			}
+		}
+	}
+}
+class RedoAutoConfig extends TimerTask {
+	AutoConfig ac = new AutoConfig();
+	public void run() {
+		System.out.println("\nRUNNING AutoConfig!");
+		ServMon.avg = ac.autoConfig(15);
+	}
+}
+class HeartBeat extends TimerTask {
+	EmailBlaster emb = new EmailBlaster();
+	AutoConfig c = new AutoConfig();
+	public void run() {
+		if (emb.getAlert()) {
+			for (int i = 0; i < 5; i++) {
+				ServMon.avg = c.autoConfig(10);
+				try {
+					Thread.sleep(1 * 1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
