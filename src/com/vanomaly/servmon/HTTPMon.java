@@ -40,7 +40,7 @@ public class HTTPMon {
 				urlConn.disconnect();
 			}
 		} catch (final MalformedURLException e1) {
-			System.out.println("You have entered an invalid url, please try again...");
+			System.out.println("Website in XML Config file is Malformed");
 			System.exit(0);
 		} catch (final IOException e) {
 		//	System.out.println("You have entered an invalid url, please try again...");
